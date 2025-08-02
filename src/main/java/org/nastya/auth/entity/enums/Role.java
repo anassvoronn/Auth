@@ -1,4 +1,4 @@
-package org.nastya.auth.enums;
+package org.nastya.auth.entity.enums;
 
 public enum Role {
     USER(),
