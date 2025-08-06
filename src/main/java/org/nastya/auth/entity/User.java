@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.nastya.auth.entity.enums.Role;
 
+import java.util.Objects;
+
 @Entity
 @Data
 @Table(name = "users")
@@ -30,4 +32,16 @@ public class User {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }
