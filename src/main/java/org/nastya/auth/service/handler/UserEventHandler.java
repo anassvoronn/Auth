@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.nastya.auth.entity.User;
 import org.nastya.auth.service.AuthService;
 import org.nastya.auth.service.CustomUserDetailsService;
+import org.nastya.auth.service.KafkaProducerService;
 import org.springframework.data.rest.core.annotation.*;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -17,26 +19,34 @@ import java.util.List;
 public class UserEventHandler {
     private final AuthService authService;
     private final CustomUserDetailsService customUserDetailsService;
+    private final KafkaProducerService kafkaProducerService;
+    public static final String TOPIC_NAME = "test-topic";
 
     @HandleAfterCreate
     public void handleAfterUserCreate(User user) {
-        log.info("Handling user create event for user: {}", user.getUsername());
-        log.info("user created: {}", user.getUsername());
-        log.info("a user with a username {}, password {} and email {} has been created", user.getUsername(), user.getPassword(), user.getEmail());
+        HashMap<String, String> message = new HashMap<>();
+        message.put("action", "Create");
+        message.put("username", user.getUsername());
+        message.put("email", user.getEmail());
+        kafkaProducerService.sendMessage(TOPIC_NAME, message);
     }
 
     @HandleAfterSave
     public void handleAfterUserSave(User user) {
-        log.info("Handling user save event for user: {}", user.getUsername());
-        log.info("user changed: {}", user.getUsername());
-        log.info("a user with a username {}, password {} and email {} has been changed", user.getUsername(), user.getPassword(), user.getEmail());
+        HashMap<String, String> message = new HashMap<>();
+        message.put("action", "Update");
+        message.put("username", user.getUsername());
+        message.put("email", user.getEmail());
+        kafkaProducerService.sendMessage(TOPIC_NAME, message);
     }
 
     @HandleAfterDelete
     public void handleAfterUserDelete(User user) {
-        log.info("Handling user delete event for user: {}", user.getUsername());
-        log.info("user deleted: {}", user.getUsername());
-        log.info("a user with a username {}, password {} and email {} has been deleted", user.getUsername(), user.getPassword(), user.getEmail());
+        HashMap<String, String> message = new HashMap<>();
+        message.put("action", "Delete");
+        message.put("username", user.getUsername());
+        message.put("email", user.getEmail());
+        kafkaProducerService.sendMessage(TOPIC_NAME, message);
     }
 
     @HandleBeforeSave
