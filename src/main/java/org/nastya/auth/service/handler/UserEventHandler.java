@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @RepositoryEventHandler(User.class)
@@ -25,27 +27,30 @@ public class UserEventHandler {
     @HandleAfterCreate
     public void handleAfterUserCreate(User user) {
         HashMap<String, String> message = new HashMap<>();
-        message.put("action", "Create");
+        message.put("action", "created");
         message.put("username", user.getUsername());
         message.put("email", user.getEmail());
+        message.put("adminEmails", String.join(", ", getAdminEmails()));
         kafkaProducerService.sendMessage(TOPIC_NAME, message);
     }
 
     @HandleAfterSave
     public void handleAfterUserSave(User user) {
         HashMap<String, String> message = new HashMap<>();
-        message.put("action", "Update");
+        message.put("action", "updated");
         message.put("username", user.getUsername());
         message.put("email", user.getEmail());
+        message.put("adminEmails", String.join(", ", getAdminEmails()));
         kafkaProducerService.sendMessage(TOPIC_NAME, message);
     }
 
     @HandleAfterDelete
     public void handleAfterUserDelete(User user) {
         HashMap<String, String> message = new HashMap<>();
-        message.put("action", "Delete");
+        message.put("action", "deleted");
         message.put("username", user.getUsername());
         message.put("email", user.getEmail());
+        message.put("adminEmails", String.join(", ", getAdminEmails()));
         kafkaProducerService.sendMessage(TOPIC_NAME, message);
     }
 
@@ -71,4 +76,12 @@ public class UserEventHandler {
             throw new IllegalAccessException("Only admin can do this action");
         }
     }
+
+    private Set<String> getAdminEmails() {
+        return customUserDetailsService.findAllAdmins()
+                .stream()
+                .map(User::getEmail)
+                .collect(Collectors.toSet());
+    }
+
 }
