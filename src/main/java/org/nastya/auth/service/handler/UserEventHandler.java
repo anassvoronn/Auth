@@ -3,6 +3,7 @@ package org.nastya.auth.service.handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nastya.auth.entity.User;
+import org.nastya.auth.entity.enums.Role;
 import org.nastya.auth.service.AuthService;
 import org.nastya.auth.service.CustomUserDetailsService;
 import org.nastya.auth.service.KafkaProducerService;
@@ -26,6 +27,9 @@ public class UserEventHandler {
 
     @HandleAfterCreate
     public void handleAfterUserCreate(User user) {
+        if (user.getRole() == Role.ADMIN) {
+            return;
+        }
         HashMap<String, String> message = new HashMap<>();
         message.put("action", "created");
         message.put("username", user.getUsername());
@@ -36,6 +40,9 @@ public class UserEventHandler {
 
     @HandleAfterSave
     public void handleAfterUserSave(User user) {
+        if (user.getRole() == Role.ADMIN) {
+            return;
+        }
         HashMap<String, String> message = new HashMap<>();
         message.put("action", "updated");
         message.put("username", user.getUsername());
@@ -46,6 +53,9 @@ public class UserEventHandler {
 
     @HandleAfterDelete
     public void handleAfterUserDelete(User user) {
+        if (user.getRole() == Role.ADMIN) {
+            return;
+        }
         HashMap<String, String> message = new HashMap<>();
         message.put("action", "deleted");
         message.put("username", user.getUsername());
