@@ -22,8 +22,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    public void register(SignUpRequest signUpRequest) {
-        userRepository.save(
+    public User register(SignUpRequest signUpRequest) {
+        return userRepository.save(
                 convertSignUpRequestToUser(signUpRequest)
         );
     }

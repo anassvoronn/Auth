@@ -5,6 +5,7 @@ import org.nastya.auth.dto.AuthRequest;
 import org.nastya.auth.dto.AuthResponse;
 import org.nastya.auth.dto.SignUpRequest;
 import org.nastya.auth.service.AuthService;
+import org.nastya.auth.service.handler.UserEventHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final UserEventHandler userEventHandler;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody SignUpRequest singUpRequest) {
-        authService.register(singUpRequest);
+        userEventHandler.handleAfterUserCreate(authService.register(singUpRequest));
         return ResponseEntity.ok("User registered successfully");
     }
 
